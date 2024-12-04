@@ -316,11 +316,327 @@ dataNA <- data %>%
 
 dataNA$CONDIEGRES[dataNA$ CONDIEGRES == 9] <- NA
 dataNA$PPERTENENCIA[dataNA$ PPERTENENCIA == 9] <- NA
+dataNA$TRATARECIB[dataNA$ TRATARECIB == 9] <- NA
+
 
 ```
 
+#Árbol de Desición
+#Árbol 1 - Predicción variable SEXO:
+```{r}
+#se va a eliminar los datos los datos de sexo 9 = ignorado para hacer la predicción de la variable sexo:
+datasexo <- subset (data, SEXO != 9)
+
+dataNAsexo <- subset (dataNA, SEXO != 9)
+```
 
 
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbols <- rpart(SEXO ~
+                  AÑO+
+                  DIASESTANCIA+
+                  PPERTENENCIA+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  TRATARECIB,
+                data = datasexo, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbols, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de sexo de pacientes", cex = 0.5)
+```
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbols2 <- rpart(SEXO ~
+                  AÑO+
+                  DIASESTANCIA+
+                  PPERTENENCIA+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  TRATARECIB,
+                data = dataNAsexo, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbols2, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de sexo de pacientes", cex = 0.5)
+```
+
+
+```{r}
+#Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de sexo de los pacientes:
+
+sexo1 <- data.frame(
+  AÑO=c(2009),
+  DIASESTANCIA=c(10),
+  PPERTENENCIA=c(2),
+  EDADAÑOS=c(10),
+  DEPTORESIDEN=c(1),
+  CONDIEGRES=c(2),
+  TRATARECIB=c(2)
+)
+
+result <- predict(arbols, sexo1, type="class")
+result
+```
+```{r}
+#Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de sexo de los pacientes:
+
+sexo2 <- data.frame(
+  AÑO=c(2009),
+  DIASESTANCIA=c(10),
+  PPERTENENCIA=c(2),
+  EDADAÑOS=c(10),
+  DEPTORESIDEN=c(1),
+  CONDIEGRES=c(2),
+  TRATARECIB=c(2)
+)
+
+results <- predict(arbols2, sexo2, type="class")
+results
+```
+
+
+#Árbol 2 - Predicción variable TRATARECIB:
+```{r}
+#se va a eliminar los datos los datos de sexo 9 = ignorado para hacer la predicción de la variable sexo:
+datatrata <- subset (data, TRATARECIB != 9)
+
+dataNAstrata <- subset (dataNA, !is.na(TRATARECIB))
+
+dataNATRATA2 <- subset (dataNAsexo, !is.na(TRATARECIB))
+
+dataNATRATA3 <- subset (datasexo, !is.na(TRATARECIB))
+```
+
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbolt <- rpart(TRATARECIB ~
+                  AÑO+
+                  DIASESTANCIA+
+                  PPERTENENCIA+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  SEXO,
+                data = datatrata, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbolt, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de tratamiento recibido", cex = 0.5)
+```
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbolt2 <- rpart(TRATARECIB ~
+                  AÑO+
+                  DIASESTANCIA+
+                  PPERTENENCIA+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  SEXO,
+                data = dataNAstrata, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbolt2, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de tratamiento recibido", cex = 0.5)
+```
+
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbolt3 <- rpart(TRATARECIB ~
+                  AÑO+
+                  DIASESTANCIA+
+                  PPERTENENCIA+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  SEXO,
+                data = dataNATRATA2, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbolt3, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de tratamiento recibido", cex = 0.5)
+```
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbolt4 <- rpart(TRATARECIB ~
+                  AÑO+
+                  DIASESTANCIA+
+                  PPERTENENCIA+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  SEXO,
+                data = dataNATRATA3, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbolt4, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de tratamiento recibido", cex = 0.5)
+```
+
+```{r}
+#Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de tratamiento recibido:
+
+tratamiento <- data.frame(
+  AÑO=c(2018),
+  DIASESTANCIA=c(3),
+  PPERTENENCIA=c(6),
+  EDADAÑOS=c(28),
+  DEPTORESIDEN=c(3),
+  CONDIEGRES=c(1),
+  SEXO=c(2)
+)
+
+resultst <- predict(arbolt, tratamiento, type="class")
+resultst
+```
+```{r}
+#Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de tratamiento recibido:
+
+tratamiento2 <- data.frame(
+  AÑO=c(2016),
+  DIASESTANCIA=c(1),
+  PPERTENENCIA=c(7),
+  EDADAÑOS=c(39),
+  DEPTORESIDEN=c(1),
+  CONDIEGRES=c(1),
+  SEXO=c(2)
+)
+
+resultst2 <- predict(arbolt2, tratamiento2, type="class")
+resultst2
+```
+#Árbol 3 - Predicción de variable PPERTENENCIA
+```{r}
+#Para estos análisis se considerarán unicamente los años entre 2009 y 2017 debido a los cambios de categorías a partir de 2018, de igual forma para tener solamente 2 valores vamos a eliminar los valores 9= ignorado:
+dataPP <- subset (data, AÑO >= 2002 & AÑO <= 2017)
+dataPP <- subset (dataPP, PPERTENENCIA != 9)
+
+dataPP2 <- subset (dataNA, AÑO >= 2002 & AÑO <= 2017)
+dataPP2 <- subset (dataPP2, !is.na(PPERTENENCIA))
+```
+
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbolpp <- rpart(PPERTENENCIA ~
+                  AÑO+
+                  DIASESTANCIA+
+                  SEXO+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  TRATARECIB,
+                data = dataPP, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbolpp, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de pueblo de pertenencia de pacientes", cex = 0.5)
+```
+
+```{r}
+#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbolpp2 <- rpart(PPERTENENCIA ~
+                  AÑO+
+                  DIASESTANCIA+
+                  SEXO+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  CONDIEGRES+
+                  TRATARECIB,
+                data = dataPP2, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+rpart.plot(arbolpp2, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de pueblo de pertenencia de pacientes", cex = 0.5)
+```
+```{r}
+#Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de pueblo de pertenencia:
+
+pueblo <- data.frame(
+  AÑO=c(2011),
+  DIASESTANCIA=c(5),
+  SEXO=c(1),
+  EDADAÑOS=c(31),
+  DEPTORESIDEN=c(10),
+  CONDIEGRES=c(1),
+  TRATARECIB=c(2)
+)
+
+resultspp <- predict(arbolpp, pueblo, type="class")
+resultspp
+```
+
+#Árbol 4 - Predicción de variable DIASESTANCIA
+```{r}
+#Para este árbol para tener solamente 2 valores vamos a eliminar los valores 9= ignorado:
+datacond <- subset (data, CONDIEGRES != 9)
+
+dataNAdias <- subset (dataNA, !is.na(DIASESTANCIA))
+
+dataNATRATA2 <- subset (dataNAsexo, !is.na(TRATARECIB))
+
+dataNATRATA3 <- subset (datasexo, !is.na(TRATARECIB))
+
+
+```
+
+```{r}
+#Se procede a crear el árbol para predecir la variable CONDIEGRES para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+arbold <- rpart(DIASESTANCIA ~
+                  AÑO+
+                  CONDIEGRES+
+                  SEXO+
+                  EDADAÑOS+
+                  DEPTORESIDEN+
+                  PPERTENENCIA+
+                  TRATARECIB,
+                data = dataNAdias, method = "class")
+```
+
+```{r}
+#Se grafica el árbol utilizando rpart.plot:
+
+par(mar=c(1, 1, 3, 1))
+
+rpart.plot(arbold, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
+           main ="Predicción de días de estancia", cex = 0.4, shadow.col = "gray")
+```
+
+```{r}
+#Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de pueblo de pertenencia:
+
+dias <- data.frame(
+  AÑO=c(2015),
+  CONDIEGRES=c(1),
+  SEXO=c(2),
+  EDADAÑOS=c(45),
+  DEPTORESIDEN=c(20),
+  PPERTENENCIA=c(7),
+  TRATARECIB=c(3)
+)
+
+resultsdi <- predict(arbold, dias, type="class")
+resultsdi
+```
 
 
 
