@@ -6,8 +6,8 @@ Minería de Datos
 
 
 ```{r}
-#Se procede a instalar y llamar las librerías necesarias para realizar este proyecto, conforme se avanza en el proyecto se agregarán las liberías correspondientes:
-install.packages("haven")
+#Se procede a instalar y llamar las librerías necesarias para realizar este proyecto, conforme se avanza en el proyecto se agregarán las liberías correspondientes. En caso de no tener las librerías, deben instalarse usando install.packages("librería a usar"). En este caso ya estaban disponibles por lo cual no se instalan:
+
 library(haven)
 library(arules)
 library(fim4r)
@@ -17,9 +17,9 @@ library(rpart)
 library(rpart.plot)
 library(randomForest)
 ```
-
+#Carga inicial de datos
 ```{r}
-#Se cargan los datos, los cuales están disponibles en un archivo por año. Los archivos se encuentran en formato SPSS (.sav), se procede a leer los archivos utilizando read_sav para lo cual se debe instalar previamente la librería "haven". En este caso el notebook de R se ha guardado en la misma carpeta donde están los archivos por lo cual no se especifica la ubicación del archivo, unicamente el nombre, en caso que el archivo esté en otra carpeta se debe especificar la ubicación:
+#Se cargan los datos, los cuales están disponibles en un archivo por año. Los archivos se encuentran en formato SPSS (.sav), se procede a leer los archivos utilizando read_sav para lo cual se debe instalar previamente la librería "haven". En este caso el notebook de R se ha guardado en la misma carpeta donde están los archivos por lo cual no se especifica la ubicación del archivo, unicamente el nombre, en caso que el archivo esté en otra carpeta se debe especificar la ubicación entre comillas:
 
 data2009 <- read_sav("Datos 2009.sav")
 data2010 <- read_sav("Datos 2010.sav")
@@ -279,11 +279,19 @@ data <- bind_rows(data2009, data2010, data2011, data2012, data2013, data2014, da
 
 str(data)
 
-#Vamos a proceder a guardar el dataset completo para tenerlo de respaldo en caso sea necesario, en este punto se debe especificar la ubicación donde se va a guardar el archivo y el nombr:
+#Vamos a proceder a guardar el dataset completo para tenerlo de respaldo en caso sea necesario, en este punto se debe especificar la ubicación donde se va a guardar el archivo y el nombre:
 
-write_sav(data, "C:/Users/lmpgp/Downloads/Kry/ProyectoP1/Datos/data2.sav")
+write_sav(data, "C:/Users/lmpgp/Downloads/Kry/ProyectoP1/Datos/data2.sav")  #En este caso se debe colocar el nombre deseado para el archivo al finalizar la ruta donde se guardará colocando nombre.sav
 
 ```
+
+```{r}
+#Vamos a leer el archivo de data guardado luego de unir los datasets de cada año, esto será de utilidad en caso no se desee correr todas las líneas previas a esta línea y para este notebook se utilizó para realizar la aplicación del algoritmo random forest. Notar que se vuelve a guardar como "data". Esto se realizó debido a que este notebook se trabajó en diferentes sesiones, si es la primera vez que se utiliza si se deben correr las líneas previas. Este chunk puede ser opcional:
+
+data <- read_sav("data2.sav") #Se debe colocar la ruta del dataset completo o el nombre asignado. 
+
+```
+
 
 ```{r}
 ##Debido a que la edad se muestra en 2 columnas, EDAD donde se muestra el valor numérico de la edad y PERIODOEDA donde se indica si son días, meses o años. Para facilidad en el análisis posterior se procederá agregar una nueva columna donde todas las edades se muestren en años:
@@ -321,18 +329,21 @@ dataNA$TRATARECIB[dataNA$ TRATARECIB == 9] <- NA
 
 ```
 
-#Árbol de Desición
+#Algoritmo de Árbol de Desición
 #Árbol 1 - Predicción variable SEXO:
 ```{r}
-#se va a eliminar los datos los datos de sexo 9 = ignorado para hacer la predicción de la variable sexo:
+#Se va a eliminar los datos los datos de sexo 9 = ignorado para hacer la predicción de la variable sexo:
+
+#data
 datasexo <- subset (data, SEXO != 9)
 
+#dataNA
 dataNAsexo <- subset (dataNA, SEXO != 9)
 ```
 
-
+#Se utiliza datasexo
 ```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+#Se procede a crear el árbol para predecir la variable SEXO para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
 arbols <- rpart(SEXO ~
                   AÑO+
                   DIASESTANCIA+
@@ -349,8 +360,9 @@ arbols <- rpart(SEXO ~
 rpart.plot(arbols, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
            main ="Predicción de sexo de pacientes", cex = 0.5)
 ```
+#Se utiliza dataNAsexo
 ```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+#Se procede a crear el árbol para predecir la variable SEXO para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
 arbols2 <- rpart(SEXO ~
                   AÑO+
                   DIASESTANCIA+
@@ -372,6 +384,7 @@ rpart.plot(arbols2, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.pal
 ```{r}
 #Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de sexo de los pacientes:
 
+#Data sexo
 sexo1 <- data.frame(
   AÑO=c(2009),
   DIASESTANCIA=c(10),
@@ -388,6 +401,7 @@ result
 ```{r}
 #Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de sexo de los pacientes:
 
+#dataNAsexo
 sexo2 <- data.frame(
   AÑO=c(2009),
   DIASESTANCIA=c(10),
@@ -405,18 +419,16 @@ results
 
 #Árbol 2 - Predicción variable TRATARECIB:
 ```{r}
-#se va a eliminar los datos los datos de sexo 9 = ignorado para hacer la predicción de la variable sexo:
+#se va a eliminar los datos los datos de TRATARECIB = 9 = ignorado para hacer la predicción de la variable TRATARECIB (tratamiento recibido):
 datatrata <- subset (data, TRATARECIB != 9)
 
 dataNAstrata <- subset (dataNA, !is.na(TRATARECIB))
 
-dataNATRATA2 <- subset (dataNAsexo, !is.na(TRATARECIB))
-
-dataNATRATA3 <- subset (datasexo, !is.na(TRATARECIB))
 ```
 
+#datatrata
 ```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+#Se procede a crear el árbol para predecir la variable TRATARECIB para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
 arbolt <- rpart(TRATARECIB ~
                   AÑO+
                   DIASESTANCIA+
@@ -433,8 +445,9 @@ arbolt <- rpart(TRATARECIB ~
 rpart.plot(arbolt, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
            main ="Predicción de tratamiento recibido", cex = 0.5)
 ```
+#dataNAstrata
 ```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+#Se procede a crear el árbol para predecir la variable TRATARECIB para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
 arbolt2 <- rpart(TRATARECIB ~
                   AÑO+
                   DIASESTANCIA+
@@ -452,43 +465,7 @@ rpart.plot(arbolt2, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.pal
            main ="Predicción de tratamiento recibido", cex = 0.5)
 ```
 
-```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
-arbolt3 <- rpart(TRATARECIB ~
-                  AÑO+
-                  DIASESTANCIA+
-                  PPERTENENCIA+
-                  EDADAÑOS+
-                  DEPTORESIDEN+
-                  CONDIEGRES+
-                  SEXO,
-                data = dataNATRATA2, method = "class")
-```
-
-```{r}
-#Se grafica el árbol utilizando rpart.plot:
-rpart.plot(arbolt3, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
-           main ="Predicción de tratamiento recibido", cex = 0.5)
-```
-```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
-arbolt4 <- rpart(TRATARECIB ~
-                  AÑO+
-                  DIASESTANCIA+
-                  PPERTENENCIA+
-                  EDADAÑOS+
-                  DEPTORESIDEN+
-                  CONDIEGRES+
-                  SEXO,
-                data = dataNATRATA3, method = "class")
-```
-
-```{r}
-#Se grafica el árbol utilizando rpart.plot:
-rpart.plot(arbolt4, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
-           main ="Predicción de tratamiento recibido", cex = 0.5)
-```
-
+#datatrata
 ```{r}
 #Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de tratamiento recibido:
 
@@ -505,6 +482,7 @@ tratamiento <- data.frame(
 resultst <- predict(arbolt, tratamiento, type="class")
 resultst
 ```
+#dataNAstrata
 ```{r}
 #Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de tratamiento recibido:
 
@@ -523,16 +501,18 @@ resultst2
 ```
 #Árbol 3 - Predicción de variable PPERTENENCIA
 ```{r}
-#Para estos análisis se considerarán unicamente los años entre 2009 y 2017 debido a los cambios de categorías a partir de 2018, de igual forma para tener solamente 2 valores vamos a eliminar los valores 9= ignorado:
+#Para este árbol se considerarán unicamente los años entre 2009 y 2017 debido a los cambios de categorías a partir de 2018, de igual forma para tener solamente 2 valores vamos a eliminar los valores PPERTENENCIA = 9= ignorado:
 dataPP <- subset (data, AÑO >= 2002 & AÑO <= 2017)
 dataPP <- subset (dataPP, PPERTENENCIA != 9)
+
 
 dataPP2 <- subset (dataNA, AÑO >= 2002 & AÑO <= 2017)
 dataPP2 <- subset (dataPP2, !is.na(PPERTENENCIA))
 ```
 
+#dataPP
 ```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+#Se procede a crear el árbol para predecir la variable PPERTENENCIA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
 arbolpp <- rpart(PPERTENENCIA ~
                   AÑO+
                   DIASESTANCIA+
@@ -550,8 +530,9 @@ rpart.plot(arbolpp, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.pal
            main ="Predicción de pueblo de pertenencia de pacientes", cex = 0.5)
 ```
 
+#dataPP2
 ```{r}
-#Se procede a crear el árbol para predecir la variable ÁREA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
+#Se procede a crear el árbol para predecir la variable PPERTENENCIA para lo cual se utiliza rpart, se indica la variable a predecir, las variables a utilizar para la predicción, el dataset y el método a utilizar: 
 arbolpp2 <- rpart(PPERTENENCIA ~
                   AÑO+
                   DIASESTANCIA+
@@ -568,6 +549,7 @@ arbolpp2 <- rpart(PPERTENENCIA ~
 rpart.plot(arbolpp2, type=2, extra=0, under = TRUE, fallen.leaves = TRUE, box.palette = "BuGn", 
            main ="Predicción de pueblo de pertenencia de pacientes", cex = 0.5)
 ```
+#dataPP
 ```{r}
 #Se realiza una predicción asignando valores a las variables utilizadas para realizar el árbol obteniendo el resultado de pueblo de pertenencia:
 
@@ -591,11 +573,6 @@ resultspp
 datacond <- subset (data, CONDIEGRES != 9)
 
 dataNAdias <- subset (dataNA, !is.na(DIASESTANCIA))
-
-dataNATRATA2 <- subset (dataNAsexo, !is.na(TRATARECIB))
-
-dataNATRATA3 <- subset (datasexo, !is.na(TRATARECIB))
-
 
 ```
 
@@ -637,9 +614,138 @@ dias <- data.frame(
 resultsdi <- predict(arbold, dias, type="class")
 resultsdi
 ```
+#Random forest
+#1 - Departamento
 
+```{r}
+#Se elimina los datos nulos. Vamos a predecir la variable departamento por lo cual se procede a convertir a factor:
+data2 <- na.omit(dataNA)
 
+dataRF <- subset (data2, SEXO != 9)
+dataRF <- subset (dataRF, DEPTORESIDEN != 99)
 
+dataRF$DEPTORESIDEN <- as.factor(dataRF$DEPTORESIDEN)
+```
 
+```{r}
+#Se desordena la data para luego generar dos sets de datos considerando un 80% de los datos para entrenar el algoritmo y un 20% para probarlo:
 
+set.seed(100)
+dataRF <- dataRF[sample(1:nrow(dataRF)),]
 
+index <-sample(1:nrow(dataRF), 0.8*nrow(dataRF))
+
+train <- dataRF[index,]
+test <- dataRF[-index,]
+```
+
+```{r}
+#Se crea el bosque:
+bosque <- randomForest(DEPTORESIDEN ~  + AÑO + DIASESTANCIA + SEXO + PPERTENENCIA + EDADAÑOS + TRATARECIB,
+                       data = train,
+                       ntree = 100,
+                       mtry = 4
+                       )
+
+```
+
+```{r}
+prueba <- predict(bosque, test)
+
+prueba
+```
+```{r}
+dato_nuevo <- data.frame(
+  AÑO=2011,
+  DIASESTANCIA=10,
+  SEXO=2,
+  PPERTENENCIA= 1,
+  EDADAÑOS= 51,
+  TRATARECIB=1
+)
+
+prediccion <- predict(bosque, dato_nuevo)
+prediccion
+```
+
+```{r}
+matriz <- table (test$DEPTORESIDEN, prueba)
+
+matriz
+```
+```{r}
+pre <- sum(diag(matriz))/sum(matriz)
+pre
+
+```
+
+```{r}
+plot(bosque)
+```
+#2 - Tratamiento recibido:
+```{r}
+#Se elimina los datos nulos. Vamos a predecir la variable TRATARECIB por lo cual se procede a convertir a factor:
+data2 <- na.omit(dataNA)
+
+dataRF2 <- subset (data2, SEXO != 9)
+dataRF2 <- subset (dataRF2, DEPTORESIDEN != 99)
+
+dataRF2$TRATARECIB <- as.factor(dataRF2$TRATARECIB)
+```
+
+```{r}
+#Se desordena la data para luego generar dos sets considerando un 80% de los datos para entrenar el algoritmo y un 20% para probarlo:
+
+set.seed(100)
+dataRF2 <- dataRF2[sample(1:nrow(dataRF2)),]
+
+index2 <-sample(1:nrow(dataRF2), 0.8*nrow(dataRF2))
+
+train2 <- dataRF2[index2,]
+test2 <- dataRF2[-index2,]
+```
+
+```{r}
+#Se crea el bosque:
+bosque2 <- randomForest(TRATARECIB ~  + DIASESTANCIA + SEXO + PPERTENENCIA + EDADAÑOS + DEPTORESIDEN,
+                       data = train2,
+                       ntree = 100,
+                       mtry = 3
+                       )
+
+```
+
+```{r}
+prueba2 <- predict(bosque2, test2)
+
+prueba2
+```
+
+```{r}
+dato_nuevo2 <- data.frame(
+  DIASESTANCIA=15,
+  SEXO=2,
+  PPERTENENCIA= 7,
+  EDADAÑOS= 7,
+  DEPTORESIDEN=14
+)
+
+prediccion2 <- predict(bosque2, dato_nuevo2)
+prediccion2
+```
+
+```{r}
+matriz2 <- table (test2$TRATARECIB, prueba2)
+
+matriz2
+```
+
+```{r}
+pre2 <- sum(diag(matriz2))/sum(matriz2)
+pre2
+
+```
+
+```{r}
+plot(bosque2)
+```
