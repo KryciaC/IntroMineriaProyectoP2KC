@@ -314,6 +314,12 @@ data <- data %>%
 
 ```
 
+```{r}
+#Se vuelve a guardar la data con las modificaciones finales de EDADAÑOS, se puede cargar solo este archivo que ya está completamente modificado:
+
+write_sav(data, "C:/Users/lmpgp/Downloads/Kry/ProyectoP1/Datos/data3.sav")
+```
+
 
 ```{r}
 #En este apartado procedimos a sustituir los valores 9999 y 999 con NA:
@@ -327,7 +333,9 @@ dataNA$PPERTENENCIA[dataNA$ PPERTENENCIA == 9] <- NA
 dataNA$TRATARECIB[dataNA$ TRATARECIB == 9] <- NA
 
 
+
 ```
+
 
 #Algoritmo de Árbol de Desición
 #Árbol 1 - Predicción variable SEXO:
@@ -650,11 +658,13 @@ bosque <- randomForest(DEPTORESIDEN ~  + AÑO + DIASESTANCIA + SEXO + PPERTENENC
 ```
 
 ```{r}
+#Se prueba el bosque:
 prueba <- predict(bosque, test)
 
 prueba
 ```
 ```{r}
+#Predicción
 dato_nuevo <- data.frame(
   AÑO=2011,
   DIASESTANCIA=10,
@@ -674,6 +684,7 @@ matriz <- table (test$DEPTORESIDEN, prueba)
 matriz
 ```
 ```{r}
+#Precisión del modelo
 pre <- sum(diag(matriz))/sum(matriz)
 pre
 
@@ -716,12 +727,14 @@ bosque2 <- randomForest(TRATARECIB ~  + DIASESTANCIA + SEXO + PPERTENENCIA + EDA
 ```
 
 ```{r}
+#Se prueba el bosque:
 prueba2 <- predict(bosque2, test2)
 
 prueba2
 ```
 
 ```{r}
+#Predicción:
 dato_nuevo2 <- data.frame(
   DIASESTANCIA=15,
   SEXO=2,
@@ -741,6 +754,7 @@ matriz2
 ```
 
 ```{r}
+#Precisión del modelo:
 pre2 <- sum(diag(matriz2))/sum(matriz2)
 pre2
 
@@ -749,3 +763,35 @@ pre2
 ```{r}
 plot(bosque2)
 ```
+
+
+```{r}
+#En este apartado procedimos a sustituir los valores 9999 y 999 con NA, esta data la vamos a utilizar para la aplicación de redes neuronales:
+
+dataNA2 <- data %>%
+  mutate(across(where(is.numeric), ~ na_if(., 9999))) %>%  
+  mutate(across(where(is.numeric), ~ na_if(., 999))) 
+
+dataNA2$CONDIEGRES[dataNA2$ CONDIEGRES == 9] <- NA
+dataNA2$PPERTENENCIA[dataNA2$ PPERTENENCIA == 9] <- NA
+dataNA2$TRATARECIB[dataNA2$ TRATARECIB == 9] <- NA
+dataNA2$TRATARECIB[dataNA2$ SEXO == 9] <- NA
+dataNA2$TRATARECIB[dataNA2$ DEPTORESIDEN == 99] <- NA
+dataNA2$TRATARECIB[dataNA2$ SEXO == 9] <- NA
+
+#Se procede a eliminar todos los datos NA:
+dataNA2 <- na.omit(dataNA2)
+
+```
+
+
+```{r}
+#Guardamos el dataset dataNA2 para poder usarlo en google colab, se debe especificar la ruta donde se guardará y el nombre que se le asignará al archivo (para este caso fue dataRN.sav):
+
+write_sav(dataNA2, "C:/Users/lmpgp/Downloads/Kry/ProyectoP1/Datos/dataRN.sav")
+```
+
+
+
+
+
